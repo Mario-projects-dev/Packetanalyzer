@@ -1,23 +1,3 @@
-// Microsoft Development Environment 2003 - Version 7.1.3088
-
-// Copyright (r) 1987-2002 Microsoft Corporation. All Right Reserved
-
-// Microsoft .NET Framework 1.1 - Version 1.1.4322
-
-// Copyright (r) 1998-2002 Microsoft Corporation. All Right Reserved
-
-//
-
-// Run on Windows XP Pro machine, version 2002, SP 2
-
-//
-
-// <windows.h> already included...
-
-// WINVER = 0x0501 for Xp already defined in windows.h
-
-
-
 #include <stdio.h>
 #include <winsock2.h>
 
@@ -25,7 +5,6 @@
 int main()
 
 {
-
     WORD wVersionRequested;
     WSADATA wsaData;
     int wsaerr;
@@ -34,36 +13,25 @@ int main()
 
     wVersionRequested = MAKEWORD(2, 2);
 
-
     wsaerr = WSAStartup(wVersionRequested, &wsaData);
     if (wsaerr != 0)
     {
         /* Tell the user that we could not find a usable */
-
         /* WinSock DLL.*/
 
         printf("The Winsock dll not found!\n");
-
         return 0;
     }
     else
     {
-
         printf("The Winsock dll found!\n");
         printf("The status: %s.\n", wsaData.szSystemStatus);
-
     }
 
-
-
     /* Confirm that the WinSock DLL supports 2.2.*/
-
     /* Note that if the DLL supports versions greater    */
-
     /* than 2.2 in addition to 2.2, it will still return */
-
     /* 2.2 in wVersion since that is the version we      */
-
     /* requested.                                        */
 
     if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
@@ -73,7 +41,6 @@ int main()
         /* WinSock DLL.*/
 
         printf("The dll do not support the Winsock version %u.%u!\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
-
         WSACleanup();
 
         return 0;
@@ -84,10 +51,25 @@ int main()
         printf("The highest version this dll can support: %u.%u\n", LOBYTE(wsaData.wHighVersion), HIBYTE(wsaData.wHighVersion));
 
     }
+    ///////create a socket//////////
+    //socket obejct m_socket
+    SOCKET m_socket;
 
-    /* The next task... */
+    //for function socket use internet family, streaming socket and TCP/IP protocol
+    //using AF_INET family, TCP socket type and protocol of the AF_INET - IPv4
+    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-
+    //check that the socket is a valid socket
+    if (m_socket == INVALID_SOCKET)
+    {
+        printf("Error at socket: %ld\n", WSAGetLastError());
+        WSACleanup();
+        return 0;
+    }
+    else
+    {
+        printf("socket() is OK!\n");
+    }
 
     return 0;
 
