@@ -68,9 +68,31 @@ int main()
     }
     else
     {
-        printf("socket() is OK!\n");
+        printf("socket function is working!\n");
     }
+    ///////// function bind()/////////
+    //create sockaddr_in object and set its values
+    sockaddr_in service;
 
+    //AF_INET is the Internet address family
+    service.sin_family = AF_INET;
+
+    //127.0.0.1 is the local ip address to which will be socket bound
+    service.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    //55555 is port number to which will be socket bound
+    service.sin_port = htons(55555);
+
+    if (bind(m_socket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
+    {
+        printf("bind function failed: %ld.\n", WSAGetLastError());
+        closesocket(m_socket);
+        return 0;
+    }
+    else
+    {
+        printf("bind is working\n");
+    }
     return 0;
 
 }
