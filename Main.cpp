@@ -60,10 +60,11 @@ int main()
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     //check that the socket is a valid socket
+    
     if (m_socket == INVALID_SOCKET)
     {
         printf("Error at socket: %ld\n", WSAGetLastError());
-        WSACleanup();
+        WSACleanup();//wsacleanup() - returns 0 if operation was successful
         return 0;
     }
     else
