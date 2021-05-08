@@ -87,12 +87,21 @@ int main()
     if (bind(m_socket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
     {
         printf("bind function failed: %ld.\n", WSAGetLastError());
-        closesocket(m_socket);
+        closesocket(m_socket);//closesocet function close the socket
         return 0;
     }
     else
     {
         printf("bind is working\n");
+    }
+
+    //call listen function, passing created socket and the maximum number of allowed 
+    //connections to accept as parameters. check for general errors
+    if (listen(m_socket, 1) == SOCKET_ERROR)
+        printf("listen function: Error on listening socket %ld.\n", WSAGetLastError());
+    else
+    {
+        printf("listen function working correctly, I am waiting for connections...\n");
     }
     return 0;
 
