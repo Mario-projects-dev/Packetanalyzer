@@ -103,6 +103,25 @@ int main()
     {
         printf("listen function working correctly, I am waiting for connections...\n");
     }
+    //temporary socket AcceptSocket for accepting connections
+    SOCKET AcceptSocket;
+
+    printf("Server: Waiting for a client to connect...\n");
+    printf("Server is ready...run your client program...\n");
+    //verification loop to checks for connection requests, if connection request occurs, call accept function to handle the request
+    while (1)
+    {
+        AcceptSocket = SOCKET_ERROR;
+        while (AcceptSocket == SOCKET_ERROR)
+        {
+            AcceptSocket = accept(m_socket, NULL, NULL);
+        }
+        //when connection is accepted, transfer control from temporary socket to original socket and stop checking for new connection
+        printf("Server:Client connected!\n");
+        m_socket = AcceptSocket;
+        break;
+    }
+
     return 0;
 
 }
