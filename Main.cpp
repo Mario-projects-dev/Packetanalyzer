@@ -122,6 +122,34 @@ int main()
         break;
     }
 
+    int bytesSent;
+    int bytesRecv = SOCKET_ERROR;
+    char sendbuf[200] = "This string is a test data from server";
+    char recvbuf[200] = "";
+
+    printf("Server: Sending some test data to client...\n");
+
+    bytesSent = send(m_socket, sendbuf, strlen(sendbuf), 0);
+
+    if (bytesSent == SOCKET_ERROR)
+        printf("Server: send() error%ld.\n", WSAGetLastError());
+    else
+    {
+        printf("Server: send() is OK!");
+        printf("Server: Bytes Sent: %ld.\n", bytesSent);
+    }
+
+    bytesRecv = recv(m_socket, recvbuf, 200, 0);
+
+    if (bytesRecv == SOCKET_ERROR)
+        printf("Server: recv() error %ld.\n", WSAGetLastError());
+    else
+    {
+        printf("Server: recv() is OK!");
+        printf("Server: Received data is: \"%s\"\n", recvbuf);
+        printf("Server: Bytes Received: %ld.\n", bytesRecv);
+    }
+    WSACleanup();
     return 0;
 
 }
