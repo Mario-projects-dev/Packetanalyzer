@@ -118,11 +118,11 @@ int main(int argc, char** argv)
 
     {
 
-        printf("Server: The dll supports the Winsock version % u. % u!\n, LOBYTE(wsaData.wVersion),
+        printf("Server: The dll supports the Winsock version % u. % u!\n", LOBYTE(wsaData.wVersion),
 
             HIBYTE(wsaData.wVersion));
 
-        printf(Server: The highest version this dll can support is % u. % u\n,
+        printf("Server: The highest version this dll can support is % u. % u\n",
 
             LOBYTE(wsaData.wHighVersion), HIBYTE(wsaData.wHighVersion));
 
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
     {
 
-        printf(Server: Error at socket(), error code : % ld.\n, WSAGetLastError());
+        printf("Server: Error at socket(), error code : % ld.\n, WSAGetLastError())";
 
         // Clean up
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 
     else
 
-        printf(Server: socket() is OK!\n);
+        printf("Server: socket() is OK!\n");
 
 
 
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
 
     {
 
-        printf(Server: bind() failed!Error code : % ld.\n, WSAGetLastError());
+        printf("Server: bind() failed!Error code : % ld.\n", WSAGetLastError());
 
         // Close the socket
 
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 
     else
 
-        printf(Server: bind() is OK!\n);
+        printf("Server: bind() is OK!\n");
 
 
 
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 
     {
 
-        printf(Server: listen() : Error listening on socket % ld.\n, WSAGetLastError());
+        printf("Server: listen() : Error listening on socket % ld.\n", WSAGetLastError());
 
         // Close the socket
 
@@ -236,7 +236,7 @@ int main(int argc, char** argv)
 
     else
 
-        printf(Server: listen() is OK, I'm listening for connections...\n);
+        printf("Server: listen() is OK, I'm listening for connections...\n");
 
 
 
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 
         // Timed out, do whatever you want to handle this situation
 
-        printf(\nServer: Timeout lor while waiting you retard client!...\n);
+        printf("\nServer: Timeout lor while waiting you retard client!...\n");
 
         break;
 
@@ -262,7 +262,7 @@ int main(int argc, char** argv)
 
         // Error occurred, more tweaking here and the recvTimeOutTCP()...
 
-        printf(\nServer: Some error encountered with code number : % ld\n, WSAGetLastError());
+        printf("\nServer: Some error encountered with code number : % ld\n", WSAGetLastError());
 
         break;
 
@@ -298,11 +298,11 @@ int main(int argc, char** argv)
 
                 NewConnection = accept(ListeningSocket, NULL, NULL);
 
-                printf(\nServer: accept() is OK...\n);
+                printf("\nServer: accept() is OK...\n");
 
-                printf(Server: New client got connected, ready to
+                printf("Server: New client got connected, ready to
 
-                    receive and send data...\n);
+                    receive and send data...\n");
 
 
 
@@ -324,7 +324,7 @@ int main(int argc, char** argv)
 
                 {
 
-                    printf(Server: recv() looks fine....\n);
+                    printf("Server: recv() looks fine....\n");
 
 
 
@@ -334,11 +334,11 @@ int main(int argc, char** argv)
 
                         (int*)sizeof(ServerAddr));
 
-                    printf(Server: Receiving IP(s) used : % s\n,
+                    printf("Server: Receiving IP(s) used : % s\n",
 
                         inet_ntoa(ServerAddr.sin_addr));
 
-                    printf(Server: Receiving port used : % d\n, htons(ServerAddr.sin_port));
+                    printf("Server: Receiving port used : % d\n, htons(ServerAddr.sin_port)");
 
 
 
@@ -354,9 +354,9 @@ int main(int argc, char** argv)
 
                     getpeername(NewConnection, (SOCKADDR*)&SenderInfo, &nlen);
 
-                    printf(Server: Sending IP used : % s\n, inet_ntoa(SenderInfo.sin_addr));
+                    printf("Server: Sending IP used : % s\n", inet_ntoa(SenderInfo.sin_addr));
 
-                    printf(Server: Sending port used : % d\n, htons(SenderInfo.sin_port));
+                    printf("Server: Sending port used : % d\n", htons(SenderInfo.sin_port));
 
 
 
@@ -364,11 +364,11 @@ int main(int argc, char** argv)
 
                     // byte received, it is not the size of the declared buffer
 
-                    printf(Server: Bytes received : % d\n, ByteReceived);
+                    printf("Server: Bytes received : % d\n", ByteReceived);
 
                     // Print what those bytes represent
 
-                    printf(Server: Those bytes are : \);
+                    printf("Server: Those bytes are : \");
 
                     // Print the string only, discard other
 
@@ -376,9 +376,9 @@ int main(int argc, char** argv)
 
                     for (i = 0;i < ByteReceived;i++)
 
-                        printf(% c, recvbuff[i]);
+                        printf("% c, recvbuff[i]");
 
-                    printf(\);
+                    printf("\");
 
                 }
 
@@ -386,13 +386,13 @@ int main(int argc, char** argv)
 
                 else if (ByteReceived == 0)
 
-                    printf(Server: Connection closed!\n);
+                    printf("Server: Connection closed!\n");
 
                 // Others
 
                 else
 
-                    printf(Server: recv() failed with error code : % d\n, WSAGetLastError());
+                    printf("Server: recv() failed with error code : % d\n", WSAGetLastError());
 
             }
 
@@ -402,13 +402,11 @@ int main(int argc, char** argv)
 
             if (shutdown(NewConnection, SD_SEND) != 0)
 
-                printf(\nServer: Well, there is something wrong with the
-
-                    shutdown().The error code : % ld\n, WSAGetLastError());
+                printf("\nServer: Well, there is something wrong with the shutdown().The error code : % ld\n", WSAGetLastError());
 
             else
 
-                printf(\nServer: shutdown() looks OK...\n);
+                printf("\nServer: shutdown() looks OK...\n");
 
 
 
@@ -428,17 +426,17 @@ int main(int argc, char** argv)
 
 
 
-    printf(\nServer: The listening socket is timeout...\n);
+    printf("\nServer: The listening socket is timeout...\n");
 
     // When all the data communication and listening finished, close the socket
 
     if (closesocket(ListeningSocket) != 0)
 
-        printf(Server: Cannot close \ListeningSocket\ socket.Error code : % ld\n, WSAGetLastError());
+        printf("Server: Cannot close \ListeningSocket\ socket.Error code : % ld\n", WSAGetLastError());
 
     else
 
-        printf(Server: Closing \ListeningSocket\ socket...\n);
+        printf("Server: Closing \ListeningSocket\ socket...\n");
 
 
 
@@ -446,11 +444,11 @@ int main(int argc, char** argv)
 
     if (WSACleanup() != 0)
 
-        printf(Server: WSACleanup() failed!Error code : % ld\n, WSAGetLastError());
+        printf("Server: WSACleanup() failed!Error code : % ld\n", WSAGetLastError());
 
     else
 
-        printf(Server: WSACleanup() is OK...\n);
+        printf("Server: WSACleanup() is OK...\n");
 
 
 
