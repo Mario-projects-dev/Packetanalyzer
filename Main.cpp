@@ -1,155 +1,459 @@
-#include <stdio.h>
 #include <winsock2.h>
 
+#include <stdio.h>
 
-int main()
+
+
+// A sample of the select() return value
+
+int recvTimeOutTCP(SOCKET socket, long sec, long usec)
 
 {
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int wsaerr;
 
-    // Using MAKEWORD macro, Winsock version request 2.2
+    // Setup timeval variable
 
-    wVersionRequested = MAKEWORD(2, 2);
+    struct timeval timeout;
 
-    wsaerr = WSAStartup(wVersionRequested, &wsaData);
-    if (wsaerr != 0)
+    struct fd_set fds;
+
+
+
+    // assign the second and microsecond variables
+
+    timeout.tv_sec = sec;
+
+    timeout.tv_usec = usec;
+
+    // Setup fd_set structure
+
+    FD_ZERO(&fds);
+
+    FD_SET(socket, &fds);
+
+    // Possible return values:
+
+    // -1: error occurred
+
+    // 0: timed out
+
+    // > 0: data ready to be read
+
+    return select(0, &fds, 0, 0, &timeout);
+
+}
+
+
+
+int main(int argc, char** argv)
+
+{
+
+    WSADATA            wsaData;
+
+    SOCKET             ListeningSocket, NewConnection;
+
+    SOCKADDR_IN        ServerAddr, SenderInfo;
+
+    int                Port = 7171;
+
+    // Receiving part
+
+    char          recvbuff[1024];
+
+    int                ByteReceived, i, nlen, SelectTiming;
+
+
+
+    // Initialize Winsock version 2.2
+
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+
     {
-        /* Tell the user that we could not find a usable */
-        /* WinSock DLL.*/
 
-        printf("The Winsock dll not found!\n");
-        return 0;
+        // The WSAGetLastError() function is one of the only functions
+
+        // in the Winsock 2.2 DLL that can be called in the case of a WSAStartup failure
+
+        printf("Server: WSAStartup failed with error % ld.\n", WSAGetLastError());
+
+        // Exit with error
+
+        return 1;
+
     }
+
     else
+
     {
-        printf("The Winsock dll found!\n");
-        printf("The status: %s.\n", wsaData.szSystemStatus);
+
+        printf("Server: The Winsock DLL found!\n");
+
+        printf("Server: The current status is % s.\n", wsaData.szSystemStatus);
+
     }
 
-    /* Confirm that the WinSock DLL supports 2.2.*/
-    /* Note that if the DLL supports versions greater    */
-    /* than 2.2 in addition to 2.2, it will still return */
-    /* 2.2 in wVersion since that is the version we      */
-    /* requested.                                        */
+
 
     if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
+
     {
-        /* Tell the user that we could not find a usable */
 
-        /* WinSock DLL.*/
+        //Tell the user that we could not find a usable WinSock DLL
 
-        printf("The dll do not support the Winsock version %u.%u!\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
+        printf("Server: The dll do not support the Winsock version% u.% u!\n",
+
+            LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
+
+        // Do the clean up
+
         WSACleanup();
 
-        return 0;
+        // and exit with error
+
+        return 1;
+
     }
+
     else
+
     {
-        printf("The dll supports the Winsock version %u.%u!\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
-        printf("The highest version this dll can support: %u.%u\n", LOBYTE(wsaData.wHighVersion), HIBYTE(wsaData.wHighVersion));
+
+        printf("Server: The dll supports the Winsock version % u. % u!\n, LOBYTE(wsaData.wVersion),
+
+            HIBYTE(wsaData.wVersion));
+
+        printf(Server: The highest version this dll can support is % u. % u\n,
+
+            LOBYTE(wsaData.wHighVersion), HIBYTE(wsaData.wHighVersion));
 
     }
-    ///////create a socket//////////
-    //socket obejct m_socket
-    SOCKET m_socket;
 
-    //for function socket use internet family, streaming socket and TCP/IP protocol
-    //using AF_INET family, TCP socket type and protocol of the AF_INET - IPv4
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    //check that the socket is a valid socket
-    
-    if (m_socket == INVALID_SOCKET)
+
+    // Create a new socket to listen for client connections.
+
+    ListeningSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
+
+    // Check for errors to ensure that the socket is a valid socket.
+
+    if (ListeningSocket == INVALID_SOCKET)
+
     {
-        printf("Error at socket: %ld\n", WSAGetLastError());
-        WSACleanup();//wsacleanup() - returns 0 if operation was successful
-        return 0;
+
+        printf(Server: Error at socket(), error code : % ld.\n, WSAGetLastError());
+
+        // Clean up
+
+        WSACleanup();
+
+        // and exit with error
+
+        return 1;
+
     }
+
     else
+
+        printf(Server: socket() is OK!\n);
+
+
+
+    // Set up a SOCKADDR_IN structure that will tell bind that we
+
+    // want to listen for connections on all interfaces using port 7171.
+
+
+
+    // The IPv4 family
+
+    ServerAddr.sin_family = AF_INET;
+
+    // host-to-network byte order
+
+    ServerAddr.sin_port = htons(Port);
+
+    // Listen on all interface, host-to-network byte order
+
+    ServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+
+
+    // Associate the address information with the socket using bind.
+
+    // Call the bind function, passing the created socket and the sockaddr_in
+
+    // structure as parameters. Check for general errors.
+
+    if (bind(ListeningSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr)) == SOCKET_ERROR)
+
     {
-        printf("socket function is working!\n");
+
+        printf(Server: bind() failed!Error code : % ld.\n, WSAGetLastError());
+
+        // Close the socket
+
+        closesocket(ListeningSocket);
+
+        // Do the clean up
+
+        WSACleanup();
+
+        // and exit with error
+
+        return 1;
+
     }
-    ///////// function bind()/////////
-    //create sockaddr_in object and set its values
-    sockaddr_in service;
 
-    //AF_INET is the Internet address family
-    service.sin_family = AF_INET;
-
-    //127.0.0.1 is the local ip address to which will be socket bound
-    service.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    //55555 is port number to which will be socket bound
-    service.sin_port = htons(55555);
-
-    if (bind(m_socket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
-    {
-        printf("bind function failed: %ld.\n", WSAGetLastError());
-        closesocket(m_socket);//closesocet function close the socket
-        return 0;
-    }
     else
+
+        printf(Server: bind() is OK!\n);
+
+
+
+    // Listen for client connections with a backlog of 5
+
+    if (listen(ListeningSocket, 5) == SOCKET_ERROR)
+
     {
-        printf("bind is working\n");
+
+        printf(Server: listen() : Error listening on socket % ld.\n, WSAGetLastError());
+
+        // Close the socket
+
+        closesocket(ListeningSocket);
+
+        // Do the clean up
+
+        WSACleanup();
+
+        // Exit with error
+
+        return 1;
+
     }
 
-    //call listen function, passing created socket and the maximum number of allowed 
-    //connections to accept as parameters. check for general errors
-    if (listen(m_socket, 1) == SOCKET_ERROR)
-        printf("listen function: Error on listening socket %ld.\n", WSAGetLastError());
     else
-    {
-        printf("listen function working correctly, I am waiting for connections...\n");
-    }
-    //temporary socket AcceptSocket for accepting connections
-    SOCKET AcceptSocket;
 
-    printf("Server: Waiting for a client to connect...\n");
-    printf("Server is ready...run your client program...\n");
-    //verification loop to checks for connection requests, if connection request occurs, call accept function to handle the request
-    while (1)
+        printf(Server: listen() is OK, I'm listening for connections...\n);
+
+
+
+            // Set 10 seconds 10 useconds timeout
+
+            SelectTiming = recvTimeOutTCP(ListeningSocket, 10, 10);
+
+
+
+    switch (SelectTiming)
+
     {
-        AcceptSocket = SOCKET_ERROR;
-        while (AcceptSocket == SOCKET_ERROR)
-        {
-            AcceptSocket = accept(m_socket, NULL, NULL);
-        }
-        //when connection is accepted, transfer control from temporary socket to original socket and stop checking for new connection
-        printf("Server:Client connected!\n");
-        m_socket = AcceptSocket;
+
+    case 0:
+
+        // Timed out, do whatever you want to handle this situation
+
+        printf(\nServer: Timeout lor while waiting you retard client!...\n);
+
         break;
-    }
 
-    int bytesSent;
-    int bytesRecv = SOCKET_ERROR;
-    char sendbuf[200] = "This string is a test data from server";
-    char recvbuf[200] = "";
+    case -1:
 
-    printf("Server: Sending some test data to client...\n");
+        // Error occurred, more tweaking here and the recvTimeOutTCP()...
 
-    bytesSent = send(m_socket, sendbuf, strlen(sendbuf), 0);
+        printf(\nServer: Some error encountered with code number : % ld\n, WSAGetLastError());
 
-    if (bytesSent == SOCKET_ERROR)
-        printf("Server: send() error%ld.\n", WSAGetLastError());
-    else
+        break;
+
+    default:
+
     {
-        printf("Server: send() is OK!");
-        printf("Server: Bytes Sent: %ld.\n", bytesSent);
+
+        // Accept a new connection when available. 'while' always true
+
+        while (1)
+
+        {
+
+            // Reset the NewConnection socket to SOCKET_ERROR
+
+            // Take note that the NewConnection socket in not listening
+
+            NewConnection = SOCKET_ERROR;
+
+            // While the NewConnection socket equal to SOCKET_ERROR
+
+            // which is always true in this case...
+
+            while (NewConnection == SOCKET_ERROR)
+
+            {
+
+                // Accept connection on the ListeningSocket socket and assign
+
+                // it to the NewConnection socket, let the ListeningSocket
+
+                // do the listening for more connection
+
+                NewConnection = accept(ListeningSocket, NULL, NULL);
+
+                printf(\nServer: accept() is OK...\n);
+
+                printf(Server: New client got connected, ready to
+
+                    receive and send data...\n);
+
+
+
+                // At this point you can do two things with these sockets
+
+                // 1. Wait for more connections by calling accept again
+
+                //    on ListeningSocket (loop)
+
+                // 2. Start sending or receiving data on NewConnection.
+
+                ByteReceived = recv(NewConnection, recvbuff, sizeof(recvbuff), 0);
+
+
+
+                // When there is data
+
+                if (ByteReceived > 0)
+
+                {
+
+                    printf(Server: recv() looks fine....\n);
+
+
+
+                    // Some info on the receiver side...
+
+                    getsockname(ListeningSocket, (SOCKADDR*)&ServerAddr,
+
+                        (int*)sizeof(ServerAddr));
+
+                    printf(Server: Receiving IP(s) used : % s\n,
+
+                        inet_ntoa(ServerAddr.sin_addr));
+
+                    printf(Server: Receiving port used : % d\n, htons(ServerAddr.sin_port));
+
+
+
+                    // Some info on the sender side
+
+                    // Allocate the required resources
+
+                    memset(&SenderInfo, 0, sizeof(SenderInfo));
+
+                    nlen = sizeof(SenderInfo);
+
+
+
+                    getpeername(NewConnection, (SOCKADDR*)&SenderInfo, &nlen);
+
+                    printf(Server: Sending IP used : % s\n, inet_ntoa(SenderInfo.sin_addr));
+
+                    printf(Server: Sending port used : % d\n, htons(SenderInfo.sin_port));
+
+
+
+                    // Print the received bytes. Take note that this is the total
+
+                    // byte received, it is not the size of the declared buffer
+
+                    printf(Server: Bytes received : % d\n, ByteReceived);
+
+                    // Print what those bytes represent
+
+                    printf(Server: Those bytes are : \);
+
+                    // Print the string only, discard other
+
+                    // remaining 'rubbish' in the 1024 buffer size
+
+                    for (i = 0;i < ByteReceived;i++)
+
+                        printf(% c, recvbuff[i]);
+
+                    printf(\);
+
+                }
+
+                // No data
+
+                else if (ByteReceived == 0)
+
+                    printf(Server: Connection closed!\n);
+
+                // Others
+
+                else
+
+                    printf(Server: recv() failed with error code : % d\n, WSAGetLastError());
+
+            }
+
+
+
+            // Clean up all the send/recv communication, get ready for new one
+
+            if (shutdown(NewConnection, SD_SEND) != 0)
+
+                printf(\nServer: Well, there is something wrong with the
+
+                    shutdown().The error code : % ld\n, WSAGetLastError());
+
+            else
+
+                printf(\nServer: shutdown() looks OK...\n);
+
+
+
+            // Well, if there is no more connection in 15 seconds,
+
+            // just exit this listening loop...
+
+            if (recvTimeOutTCP(ListeningSocket, 15, 0) == 0)
+
+                break;
+
+        }
+
     }
 
-    bytesRecv = recv(m_socket, recvbuf, 200, 0);
+    }
 
-    if (bytesRecv == SOCKET_ERROR)
-        printf("Server: recv() error %ld.\n", WSAGetLastError());
+
+
+    printf(\nServer: The listening socket is timeout...\n);
+
+    // When all the data communication and listening finished, close the socket
+
+    if (closesocket(ListeningSocket) != 0)
+
+        printf(Server: Cannot close \ListeningSocket\ socket.Error code : % ld\n, WSAGetLastError());
+
     else
-    {
-        printf("Server: recv() is OK!");
-        printf("Server: Received data is: \"%s\"\n", recvbuf);
-        printf("Server: Bytes Received: %ld.\n", bytesRecv);
-    }
-    WSACleanup();
+
+        printf(Server: Closing \ListeningSocket\ socket...\n);
+
+
+
+    // Finally and optionally, clean up all those WSA setup
+
+    if (WSACleanup() != 0)
+
+        printf(Server: WSACleanup() failed!Error code : % ld\n, WSAGetLastError());
+
+    else
+
+        printf(Server: WSACleanup() is OK...\n);
+
+
+
     return 0;
 
 }
