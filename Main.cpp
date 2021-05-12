@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
     {
 
-        printf("Server: Error at socket(), error code : % ld.\n, WSAGetLastError())";
+        printf("Server: Error at socket(), error code : % ld.\n", WSAGetLastError());
 
         // Clean up
 
@@ -300,9 +300,7 @@ int main(int argc, char** argv)
 
                 printf("\nServer: accept() is OK...\n");
 
-                printf("Server: New client got connected, ready to
-
-                    receive and send data...\n");
+                printf("Server: New client got connected, ready to receive and send data...\n");
 
 
 
@@ -368,7 +366,7 @@ int main(int argc, char** argv)
 
                     // Print what those bytes represent
 
-                    printf("Server: Those bytes are : \");
+                    printf("Server: Those bytes are : \"");
 
                     // Print the string only, discard other
 
@@ -378,7 +376,7 @@ int main(int argc, char** argv)
 
                         printf("% c, recvbuff[i]");
 
-                    printf("\");
+                    printf("\"");
 
                 }
 
