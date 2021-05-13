@@ -336,7 +336,7 @@ int main(int argc, char** argv)
 
                         inet_ntoa(ServerAddr.sin_addr));
 
-                    printf("Server: Receiving port used : % d\n, htons(ServerAddr.sin_port)");
+                    printf("Server: Receiving port used : % d\n", htons(ServerAddr.sin_port));
 
 
 
@@ -374,7 +374,7 @@ int main(int argc, char** argv)
 
                     for (i = 0;i < ByteReceived;i++)
 
-                        printf("% c, recvbuff[i]");
+                        printf("% c", recvbuff[i]);
 
                     printf("\"");
 
