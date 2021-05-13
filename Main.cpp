@@ -1,7 +1,7 @@
 
 /*
 	Simple Sniffer in winsock
-	Author : Silver Moon ( m00n.silv3r@gmail.com )
+	
 */
 
 #include "stdio.h"
