@@ -1,9 +1,4 @@
 
-/*
-	Simple Sniffer in winsock
-	
-*/
-
 #include "stdio.h"
 #include "winsock2.h"
 
