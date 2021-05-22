@@ -198,7 +198,7 @@ int main()
 
 void StartSniffing(SOCKET sniffer)
 {
-	char* Buffer = (char*)malloc(65536); //Its Big!
+	char* Buffer = (char*)malloc(65536); //65536 ports
 	int mangobyte;
 
 	if (Buffer == NULL)
@@ -209,7 +209,7 @@ void StartSniffing(SOCKET sniffer)
 
 	do
 	{
-		mangobyte = recvfrom(sniffer, Buffer, 65536, 0, 0, 0); //Eat as much as u can
+		mangobyte = recvfrom(sniffer, Buffer, 65536, 0, 0, 0);
 
 		if (mangobyte > 0)
 		{
@@ -257,6 +257,7 @@ void ProcessPacket(char* Buffer, int Size)
 	printf("TCP : %d UDP : %d ICMP : %d IGMP : %d Others : %d Total : %d\r", tcp, udp, icmp, igmp, others, total);
 }
 
+//log file headers
 void PrintIpHeader(char* Buffer)
 {
 	unsigned short iphdrlen;
